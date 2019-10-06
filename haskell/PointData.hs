@@ -13,7 +13,7 @@ data Point2D = Point { x :: Double, y :: Double } deriving (Show, Eq)
 -- slope
 -- Calculates the slope between two points
 slope :: Point2D -> Point2D -> Double
-slope a b = (y(b) - y(a)) / (x(b) - x(a))
+slope a b = ((y b) - (y a)) / ((x b) - (x a))
 
 -- lineDirection
 -- Determines whether the path through three points turns left, right, or stays straight
@@ -23,21 +23,22 @@ lineDirection a b c | (slope a b) == (slope b c) = Straight
                     | otherwise                  = RightTurn
 
 -- turnsInSeries
+-- Gets the series of turns that the points in a list make
 turnsInSeries :: [Point2D] -> [Direction]
 turnsInSeries (x:(xs@(y:z:_))) = (lineDirection x y z):(turnsInSeries xs)
 turnsInSeries _ = []
 
 -- startingPoint
--- Gets the starting point for the scan
+-- Gets the starting point for the scan, the point in the "lower left"
 startingPoint :: [Point2D] -> Point2D
 startingPoint (p:[]) = p
-startingPoint (p:ps) | y(p) < y(bestP) = p
-                     | y(p) == y(bestP) && x(p) < x(bestP) = p
+startingPoint (p:ps) | (y p) < (y bestP) = p
+                     | (y p) == (y bestP) && (x p) < (x bestP) = p
                      | otherwise = bestP
                      where bestP = (startingPoint ps)
 
 -- dist
--- Gets the distance between two points
+-- Gets the Euclidean distance between two points
 dist :: Point2D -> Point2D -> Double
 dist p1 p2 =
     let a2 = ((x p1) - (x p2)) ** 2
@@ -46,7 +47,8 @@ dist p1 p2 =
     in sqrt c2
 
 -- polarAngle
--- Gets the polar angle between the 
+-- Gets the polar angle between the starting point and another point
+-- by the Law of Cosines
 polarAngle :: Point2D -> Point2D -> Double
 polarAngle start p2 =
     let p3     = (Point ((x start) + 1.0) (y start))
@@ -60,7 +62,7 @@ polarAngle start p2 =
 -- dedup
 -- Removes duplicate points from the input list
 -- eq: Determines what it means for points to be equal
--- selector: Chooses which point to keep out of the duplicates
+-- selector: Chooses which point to save from the duplicates
 dedup :: Eq a => (a -> a -> Bool) -> ([a] -> a) -> [a] -> [a]
 dedup _ _ [] = []
 dedup eq selector (p:ps)
@@ -68,6 +70,8 @@ dedup eq selector (p:ps)
     | any (eq p) ps = (selector (p:(filter (eq p) ps))):(dedup eq selector (filter (\x -> not(eq p x)) ps))
     | otherwise = p:(dedup eq selector ps)
 
+-- orderByAngle
+-- Ordering function to sort points by polar angle
 orderByAngle :: Point2D -> Point2D -> Point2D -> Bool
 orderByAngle start a b =
     let angle1 = polarAngle start a
@@ -80,12 +84,12 @@ dedupByEq :: Eq a => [a] -> [a]
 dedupByEq ps = dedup (\p q -> p == q) (\ps -> head ps) ps
 
 -- angleEq
--- Whether the points make the same angle with the starting point
+-- Gets whether the points make the same angle with the starting point
 angleEq :: Point2D -> Point2D -> Point2D -> Bool
 angleEq start a b = approxEqual (polarAngle start a) (polarAngle start b)
 
 -- furthest
--- The further of the two points from the starting point
+-- Gets the furthest points from the starting point
 furthest :: Point2D -> [Point2D] -> Point2D
 furthest start ps = foldl step start ps
     where step best p = if (dist start p) > (dist start best) then p else best
@@ -102,5 +106,7 @@ dedupByAngle start ps = dedup (\p q -> angleEq start p q) (\xs -> furthest start
 doDedup :: Point2D -> [Point2D] -> [Point2D]
 doDedup start ps = dedupByAngle start (dedupByEq ps)
 
+-- sortPoints
+-- Sort a list of points by the polar angle that they make with the starting point
 sortPoints :: Point2D -> [Point2D] -> [Point2D]
 sortPoints startPoint ps = mergeSort (orderByAngle startPoint) (doDedup startPoint ps)
