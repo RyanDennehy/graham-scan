@@ -4,10 +4,7 @@ import Test.Framework.Providers.HUnit
 import Data.Monoid
 import Control.Monad
 import PointData
-
--- Utility
-approxEqual :: (Floating a, Ord a) => a -> a -> Bool
-approxEqual a b = (abs (a - b)) < 10e-6
+import Utility
 
 -- Data
 startPoint :: Point2D
@@ -44,7 +41,7 @@ polarNotEqual :: String
 polarNotEqual = "Angles not equal"
 
 haveSameAngle :: Point2D -> Point2D -> Assertion
-haveSameAngle a b = assertEqual polarNotEqual (polarAngle startPoint a) (polarAngle startPoint b)
+haveSameAngle a b = assertBool polarNotEqual (approxEqual (polarAngle startPoint a) (polarAngle startPoint b))
 
 polarTest0Deg   :: Assertion
 polarTest30Deg  :: Assertion
@@ -69,7 +66,7 @@ dedupError :: String
 dedupError = "Did not deduplicate list correctly"
 
 dedupByEqTest :: (Eq a, Show a) => [a] -> [a] -> Assertion
-dedupByEqTest ps expected = assertEqual dedupError (dedupByEq ps) expected
+dedupByEqTest ps expected = assertEqual dedupError expected (dedupByEq ps)
 
 dedupByEqNone   :: Assertion
 dedupByEqOne    :: Assertion
@@ -87,12 +84,13 @@ dedupByEqTwo    = dedupByEqTest [(Point 1.0 1.0), (Point 2.0 3.0), (Point 2.0 3.
 
 -- dedupByAngle Tests
 dedupByAngleTest :: [Point2D] -> [Point2D] -> Assertion
-dedupByAngleTest ps expected = assertEqual dedupError (dedupByAngle startPoint ps) expected
+dedupByAngleTest ps expected = assertEqual dedupError expected (dedupByAngle startPoint ps)
 
 dedupByAngleNone    :: Assertion
 dedupByAngleOne     :: Assertion
 dedupByAngleTriple  :: Assertion
---dedupByAngleTwo     :: Assertion
+dedupByAngleTwoA    :: Assertion
+dedupByAngleTwoB    :: Assertion
 
 dedupByAngleNone    = dedupByAngleTest  [(Point 1.0 2.0), (Point 1.0 1.0)]
                                         [(Point 1.0 2.0), (Point 1.0 1.0)]
@@ -100,18 +98,26 @@ dedupByAngleOne     = dedupByAngleTest  [(Point 1.0 2.0), (Point 10.0 20.0)]
                                         [(Point 10.0 20.0)]
 dedupByAngleTriple  = dedupByAngleTest  [(Point 1.0 2.0), (Point 10.0 20.0), (Point 100.0 200)]
                                         [(Point 100.0 200.0)]
---dedupByAngleTwo     = dedupByAngleTest  [(Point 1.0 2.0), (Point 2.0 4.0)]
+dedupByAngleTwoA    = dedupByAngleTest  [(Point 3.0 2.0), (Point 1.0 2.0), (Point 2.0 4.0), (Point 1.5 1.0)]
+                                        [(Point 3.0 2.0), (Point 2.0 4.0)]
+dedupByAngleTwoB    = dedupByAngleTest  [(Point 1.0 2.0), (Point 2.0 4.0), (Point 3.0 2.0), (Point 1.5 1.0)]
+                                        [(Point 2.0 4.0), (Point 3.0 2.0)]
 
 -- Sorting tests
 sortTest1 :: Assertion
 sortTest1 = assertEqual "Empty points list did not result in an empty list" [] (sortPoints startPoint [])
 
-t1In :: [Point2D]
-t1In = [(Point 10.0 5.0), (Point 0.0 10.0), (Point 10.0 10.0), (Point 10.0 0.0), (Point 5.0 10.0)]
-t1Out :: [Point2D]
-t1Out = [(Point 10.0 0.0), (Point 10.0 5.0), (Point 10.0 10.0), (Point 5.0 10.0), (Point 0.0 10.0)]
+sortError :: String
+sortError = "Points were not sorted correctly"
+
+t2In = [(Point 10.0 5.0), (Point 0.0 10.0), (Point 10.0 10.0), (Point 10.0 0.0), (Point 5.0 10.0)]
+t2Out = [(Point 10.0 0.0), (Point 10.0 5.0), (Point 10.0 10.0), (Point 5.0 10.0), (Point 0.0 10.0)]
 sortTest2 :: Assertion
-sortTest2 = assertEqual "Points were not sorted correctly" t1Out (sortPoints startPoint t1In)
+sortTest2 = assertEqual sortError t2Out (sortPoints startPoint t2In)
+
+t3In = [(Point 5.0 1.0), (Point 3.0 3.0), (Point 1.0 4.0), (Point 2.0 6.0), (Point 8.0 7.0), (Point 6.0 6.0), (Point 4.0 2.0)]
+t3Out = [(Point 5.0 1.0), (Point 4.0 2.0), (Point 8.0 7.0), (Point 6.0 6.0), (Point 2.0 6.0), (Point 1.0 4.0)]
+sortTest3 = assertEqual sortError t3Out (sortPoints startPoint t3In)
 
 main :: IO ()
 main = defaultMainWithOpts
@@ -131,7 +137,13 @@ main = defaultMainWithOpts
        , testCase "dedupByEqOne" dedupByEqOne
        , testCase "dedupByEqTriple" dedupByEqTriple
        , testCase "dedupByEqTwo" dedupByEqTwo
+       , testCase "dedupByAngleNone" dedupByAngleNone
+       , testCase "dedupByAngleOne" dedupByAngleOne
+       , testCase "dedupByAngleTriple" dedupByAngleTriple
+       , testCase "dedupByAngleTwoA" dedupByAngleTwoA
+       , testCase "dedupByAngleTwoB" dedupByAngleTwoB
        , testCase "sort1" sortTest1
-       , testCase "sort2" sortTest2]
+       , testCase "sort2" sortTest2
+       , testCase "sort3" sortTest3]
        mempty
        --, testCase "" 

@@ -1,6 +1,7 @@
 module PointData where
 
 import MergeSort
+import Utility
 
 data Direction = LeftTurn
                | Straight
@@ -39,20 +40,20 @@ startingPoint (p:ps) | y(p) < y(bestP) = p
 -- Gets the distance between two points
 dist :: Point2D -> Point2D -> Double
 dist p1 p2 =
-    let a2 = (x(p1) - x(p2)) ** 2
-        b2 = (y(p1) - y(p2)) ** 2
+    let a2 = ((x p1) - (x p2)) ** 2
+        b2 = ((y p1) - (y p2)) ** 2
         c2 = a2 + b2
-    in sqrt(c2)
+    in sqrt c2
 
 -- polarAngle
 -- Gets the polar angle between the 
 polarAngle :: Point2D -> Point2D -> Double
 polarAngle start p2 =
-    let p3     = (Point (x(start) + 1.0) (y(start)))
+    let p3     = (Point ((x start) + 1.0) (y start))
         sideA  = 1.0
         sideB  = dist start p2
         sideC  = dist p2 p3
-        frac   = ((sideA ** 2) + (sideB**2) - (sideC**2)) / 2 * sideA * sideB
+        frac   = ((sideA**2) + (sideB**2) - (sideC**2)) / (2 * sideA * sideB)
         angleC = acos frac
     in angleC
 
@@ -60,7 +61,7 @@ polarAngle start p2 =
 -- Removes duplicate points from the input list
 -- eq: Determines what it means for points to be equal
 -- selector: Chooses which point to keep out of the duplicates
-dedup :: (Point2D -> Point2D -> Bool) -> ([Point2D] -> Point2D) -> [Point2D] -> [Point2D]
+dedup :: Eq a => (a -> a -> Bool) -> ([a] -> a) -> [a] -> [a]
 dedup _ _ [] = []
 dedup eq selector (p:ps)
     | null ps = [p]
@@ -75,13 +76,13 @@ orderByAngle start a b =
 
 -- dedupByEq
 -- Removes duplicate points from the list by strict equality
-dedupByEq :: [Point2D] -> [Point2D]
+dedupByEq :: Eq a => [a] -> [a]
 dedupByEq ps = dedup (\p q -> p == q) (\ps -> head ps) ps
 
 -- angleEq
 -- Whether the points make the same angle with the starting point
 angleEq :: Point2D -> Point2D -> Point2D -> Bool
-angleEq start a b = (polarAngle start a) == (polarAngle start b)
+angleEq start a b = approxEqual (polarAngle start a) (polarAngle start b)
 
 -- furthest
 -- The further of the two points from the starting point
