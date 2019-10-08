@@ -1,33 +1,37 @@
---module GrahamScan where
+module GrahamScan where
 
-import MergeSort
-import System.Environment (getArgs)
+import PointData
 
-interactWith function inputFile outputFile = do
-    input <- readFile inputFile
-    let finput = toInts input
-    let fout = myFormat finput
-    putStr "input:  "
-    putStrLn fout
-    let output = myFormat (function finput)
-    putStr "output: "
-    putStrLn output
-    writeFile outputFile output
-    --let output = function input
-    --putStr "output: "
-    --putStrLn (myFormat output)
-    --writeFile outputFile (myFormat output)
+-- doublesToPoints
+-- Turns a list of doubles into a list of points
+doublesToPoints :: [Double] -> [Point2D]
+doublesToPoints ds =
+    case ds of (x:y:zs)  -> [Point x y] ++ doublesToPoints zs
+               otherwise -> []
 
-toInts :: String -> [Int]
-toInts ss = map (\r -> read r :: Int) (words ss)
+-- toPoints
+-- Turns a string of doubles into a list of points
+toPoints :: String -> [Point2D]
+toPoints ss = doublesToPoints (map (\r -> read r :: Double) (words ss))
 
-myFormat :: Show a => [a] -> String
-myFormat xs = unwords (foldl (\acc x -> acc ++ [(show x)]) [] xs)
+-- notStart
+-- Creates a list of points that are not equal to the starting point
+notStart :: Point2D -> [Point2D] -> [Point2D]
+notStart start ps = filter (\p -> not (p == start)) ps
 
-main = mainWith myFunction
-    where mainWith function = do
-            args <- getArgs
-            case args of
-                [input, output] -> interactWith function input output
-                _      -> putStrLn "error: exactly two arguments needed"
-          myFunction = mergeWrapper
+-- doScan
+-- Perform the Graham Scan
+doScan :: [Point2D] -> [Point2D] -> [Point2D]
+doScan [] stack = stack
+doScan (x:xs) stack =
+    case stack of (p1:p2:_) -> if ((length stack) > 1) && ((lineDirection p2 p1 x) == RightTurn)
+                               then doScan (x:xs) (tail stack)
+                               else doScan xs (x:stack)
+                  otherwise -> doScan xs (x:stack)
+
+-- grahamScan
+-- Performs the Graham Scan algorithm
+grahamScan :: [Point2D] -> [Point2D]
+grahamScan xs = let startPoint = (startingPoint xs)
+                    ps = sortPoints startPoint (notStart startPoint xs)
+                in reverse (doScan (startPoint:ps) [])

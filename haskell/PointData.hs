@@ -6,7 +6,7 @@ import Utility
 data Direction = LeftTurn
                | Straight
                | RightTurn
-               deriving (Show)
+               deriving (Show, Eq)
 
 data Point2D = Point { x :: Double, y :: Double } deriving (Show, Eq)
 
@@ -18,8 +18,8 @@ slope a b = ((y b) - (y a)) / ((x b) - (x a))
 -- lineDirection
 -- Determines whether the path through three points turns left, right, or stays straight
 lineDirection :: Point2D -> Point2D -> Point2D -> Direction
-lineDirection a b c | (slope a b) == (slope b c) = Straight
-                    | (slope a b)  < (slope b c) = LeftTurn
+lineDirection a b c | (slope a b) == (slope a c) = Straight
+                    | (slope a b)  < (slope a c) = LeftTurn
                     | otherwise                  = RightTurn
 
 -- turnsInSeries
