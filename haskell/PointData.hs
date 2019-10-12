@@ -1,5 +1,6 @@
 module PointData where
 
+import Data.List (partition)
 import MergeSort
 import Utility
 
@@ -67,7 +68,10 @@ dedup :: Eq a => (a -> a -> Bool) -> ([a] -> a) -> [a] -> [a]
 dedup _ _ [] = []
 dedup eq selector (p:ps)
     | null ps = [p]
-    | any (eq p) ps = (selector (p:(filter (eq p) ps))):(dedup eq selector (filter (\x -> not(eq p x)) ps))
+    | any (eq p) ps = let (match, nomatch) = partition (eq p) ps
+                          selected = selector (p:match)
+                          rest = dedup eq selector nomatch
+                      in selected:rest
     | otherwise = p:(dedup eq selector ps)
 
 -- orderByAngle
@@ -81,7 +85,9 @@ orderByAngle start a b =
 -- dedupByEq
 -- Removes duplicate points from the list by strict equality
 dedupByEq :: Eq a => [a] -> [a]
-dedupByEq ps = dedup (\p q -> p == q) (\ps -> head ps) ps
+dedupByEq ps = dedup equality selector ps
+    where equality p1 p2 = p1 == p2
+          selector xs = head xs
 
 -- angleEq
 -- Gets whether the points make the same angle with the starting point
@@ -99,7 +105,9 @@ furthest start ps = foldl step start ps
 -- starting point
 -- Keeps the point that is furthest from the starting point
 dedupByAngle :: Point2D -> [Point2D] -> [Point2D]
-dedupByAngle start ps = dedup (\p q -> angleEq start p q) (\xs -> furthest start xs) ps
+dedupByAngle start ps = dedup equality selector ps
+    where equality p1 p2 = angleEq start p1 p2
+          selector xs = furthest start xs
 
 -- doDedup
 -- Deduplicate by strict equality, then by polar angle
