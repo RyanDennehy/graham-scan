@@ -33,4 +33,4 @@ merge f as bs =
 -- mergeWrapper
 -- Handy function for the usual case of sorting for any Ord type
 mergeWrapper :: Ord a => [a] -> [a]
-mergeWrapper xs = mergeSort (<=) xs
+mergeWrapper = mergeSort (<=)

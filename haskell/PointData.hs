@@ -85,9 +85,9 @@ orderByAngle start a b =
 -- dedupByEq
 -- Removes duplicate points from the list by strict equality
 dedupByEq :: Eq a => [a] -> [a]
-dedupByEq ps = dedup equality selector ps
+dedupByEq = dedup equality selector
     where equality p1 p2 = p1 == p2
-          selector xs = head xs
+          selector = head
 
 -- angleEq
 -- Gets whether the points make the same angle with the starting point
@@ -97,7 +97,7 @@ angleEq start a b = approxEqual (polarAngle start a) (polarAngle start b)
 -- furthest
 -- Gets the furthest points from the starting point
 furthest :: Point2D -> [Point2D] -> Point2D
-furthest start ps = foldl step start ps
+furthest start = foldl step start
     where step best p = if (dist start p) > (dist start best) then p else best
 
 -- dedupByAngle
@@ -105,14 +105,14 @@ furthest start ps = foldl step start ps
 -- starting point
 -- Keeps the point that is furthest from the starting point
 dedupByAngle :: Point2D -> [Point2D] -> [Point2D]
-dedupByAngle start ps = dedup equality selector ps
-    where equality p1 p2 = angleEq start p1 p2
-          selector xs = furthest start xs
+dedupByAngle start = dedup equality selector
+    where equality = angleEq start
+          selector = furthest start
 
 -- doDedup
 -- Deduplicate by strict equality, then by polar angle
 doDedup :: Point2D -> [Point2D] -> [Point2D]
-doDedup start ps = dedupByAngle start (dedupByEq ps)
+doDedup start = dedupByAngle start . dedupByEq
 
 -- sortPoints
 -- Sort a list of points by the polar angle that they make with the starting point
