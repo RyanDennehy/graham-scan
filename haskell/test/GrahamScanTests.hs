@@ -14,6 +14,7 @@ scanTest1 :: Assertion
 scanTest2 :: Assertion
 scanTest3 :: Assertion
 scanTest4 :: Assertion
+scanTest5 :: Assertion
 
 unitCirclePoint a = Point (cos a) (sin a)
 
@@ -63,10 +64,24 @@ t4Out = [(Point 0.0 0.0),
          (Point 2.0 4.0),
          (Point 1.0 4.0)]
 
+t5In = [(Point 1.0 1.0),
+        (Point 5.0 1.0),
+        (Point 4.0 7.0),
+        (Point 13.0 5.0),
+        (Point 1.0 9.0),
+        (Point (-2.0) 4.0)]
+
+t5Out = [(Point 1.0 1.0),
+         (Point 5.0 1.0),
+         (Point 13.0 5.0),
+         (Point 1.0 9.0),
+         (Point (-2.0) 4.0)]
+
 scanTest1 = assertEqual scanError t1Out (grahamScan t1In)
 scanTest2 = assertEqual scanError t2Out (grahamScan t2In)
 scanTest3 = assertEqual scanError t3Out (grahamScan t3In)
 scanTest4 = assertEqual scanError t4Out (grahamScan t4In)
+scanTest5 = assertEqual scanError t5Out (grahamScan t5In)
 
 main :: IO ()
 main = defaultMainWithOpts
@@ -74,5 +89,6 @@ main = defaultMainWithOpts
        , testCase "scanTest2" scanTest2
        , testCase "scanTest3" scanTest3
        , testCase "scanTest4" scanTest4
+       , testCase "scanTest5" scanTest5
        ]
        mempty

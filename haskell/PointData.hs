@@ -9,19 +9,29 @@ data Direction = LeftTurn
                | RightTurn
                deriving (Show, Eq)
 
-data Point2D = Point { x :: Double, y :: Double } deriving (Show, Eq)
+data Point2D = Point { x :: Double, y :: Double } deriving (Eq)
+instance Show Point2D where
+    show p = "(" ++ show (x p) ++ ", " ++ show (y p) ++ ")"
 
--- slope
--- Calculates the slope between two points
-slope :: Point2D -> Point2D -> Double
-slope a b = ((y b) - (y a)) / ((x b) - (x a))
+-- pointsToVec
+-- Calculates the vector between two points
+pointsToVec :: Point2D -> Point2D -> Point2D
+pointsToVec a b = (Point ((x b) - (x a)) ((y b) - (y a)))
+
+-- wedgeProduct
+-- Calculates the wedge product of two vectors
+wedgeProduct :: Point2D -> Point2D -> Double
+wedgeProduct u v = ((x u) * (y v)) - ((y u) * (x v))
 
 -- lineDirection
 -- Determines whether the path through three points turns left, right, or stays straight
 lineDirection :: Point2D -> Point2D -> Point2D -> Direction
-lineDirection a b c | (slope a b) == (slope a c) = Straight
-                    | (slope a b)  < (slope a c) = LeftTurn
-                    | otherwise                  = RightTurn
+lineDirection a b c = let u = pointsToVec a b
+                          v = pointsToVec b c
+                          sign = wedgeProduct u v
+                      in if sign > 0.0 then LeftTurn
+                      else if sign < 0.0 then RightTurn
+                      else Straight
 
 -- turnsInSeries
 -- Gets the series of turns that the points in a list make
@@ -48,17 +58,24 @@ dist p1 p2 =
     in sqrt c2
 
 -- polarAngle
+-- Gets the polar angle of a point
+polarAngle base height | height `approxEqual` 0.0 = if base > 0.0
+                                                    then 0.0
+                                                    else pi
+                       | base   `approxEqual` 0.0 = if height > 0.0
+                                                    then (pi / 2.0)
+                                                    else (3.0 * pi / 2.0)
+                       | base > 0.0 && height > 0.0 = atan (height / base)
+                       | base < 0.0 = pi + (atan (height / base))
+                       | otherwise = (2.0 * pi) + (atan (height / base))
+
+-- polarAngleFromStart
 -- Gets the polar angle between the starting point and another point
--- by the Law of Cosines
-polarAngle :: Point2D -> Point2D -> Double
-polarAngle start p2 =
-    let p3     = (Point ((x start) + 1.0) (y start))
-        sideA  = 1.0
-        sideB  = dist start p2
-        sideC  = dist p2 p3
-        frac   = ((sideA**2) + (sideB**2) - (sideC**2)) / (2 * sideA * sideB)
-        angleC = acos frac
-    in angleC
+polarAngleFromStart :: Point2D -> Point2D -> Double
+polarAngleFromStart start p2 =
+    let base   = (x p2) - (x start)
+        height = (y p2) - (y start)
+    in polarAngle base height
 
 -- dedup
 -- Removes duplicate points from the input list
@@ -78,8 +95,8 @@ dedup eq selector (p:ps)
 -- Ordering function to sort points by polar angle
 orderByAngle :: Point2D -> Point2D -> Point2D -> Bool
 orderByAngle start a b =
-    let angle1 = polarAngle start a
-        angle2 = polarAngle start b
+    let angle1 = polarAngleFromStart start a
+        angle2 = polarAngleFromStart start b
     in angle1 < angle2
 
 -- dedupByEq
@@ -92,7 +109,7 @@ dedupByEq = dedup equality selector
 -- angleEq
 -- Gets whether the points make the same angle with the starting point
 angleEq :: Point2D -> Point2D -> Point2D -> Bool
-angleEq start a b = approxEqual (polarAngle start a) (polarAngle start b)
+angleEq start a b = approxEqual (polarAngleFromStart start a) (polarAngleFromStart start b)
 
 -- furthest
 -- Gets the furthest points from the starting point

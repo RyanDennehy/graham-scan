@@ -30,18 +30,18 @@ startTest2 :: Assertion
 startTest1 = assertEqual startError startPoint (startingPoint [startPoint])
 startTest2 = assertEqual startError (Point 1.0 1.0) (startingPoint [(Point 2.0 2.0), (Point 2.0 1.0), (Point 1.0 1.0), (Point 1.0 2.0)])
 
--- polarAngle Tests
+-- polarAngleFromStart Tests
 polarError :: String
 polarError = "Polar angle was not calculated correctly"
 
 polarTest :: Point2D -> Double -> Assertion
-polarTest p expected = assertBool polarError (approxEqual expected (polarAngle startPoint p))
+polarTest p expected = assertBool polarError (approxEqual expected (polarAngleFromStart startPoint p))
 
 polarNotEqual :: String
 polarNotEqual = "Angles not equal"
 
 haveSameAngle :: Point2D -> Point2D -> Assertion
-haveSameAngle a b = assertBool polarNotEqual (approxEqual (polarAngle startPoint a) (polarAngle startPoint b))
+haveSameAngle a b = assertBool polarNotEqual (approxEqual (polarAngleFromStart startPoint a) (polarAngleFromStart startPoint b))
 
 polarTest0Deg   :: Assertion
 polarTest30Deg  :: Assertion

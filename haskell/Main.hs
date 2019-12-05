@@ -9,7 +9,7 @@ interactWith function inputFile outputFile = do
     let prettyInput = myFormat input
     putStr "input:  "
     putStrLn prettyInput
-    let prettyOutput = myFormat . function input
+    let prettyOutput = myFormat $ function input
     putStr "output: "
     putStrLn prettyOutput
     writeFile outputFile prettyOutput
@@ -19,6 +19,8 @@ interactWith function inputFile outputFile = do
 myFormat :: Show a => [a] -> String
 myFormat = unwords . foldl (\acc x -> acc ++ [(show x)]) []
 
+-- main
+-- Main function
 main = mainWith myFunction
     where mainWith function = do
             args <- getArgs

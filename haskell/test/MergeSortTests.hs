@@ -34,12 +34,14 @@ sort4A  :: Assertion
 sort4B  :: Assertion
 sort4C  :: Assertion
 sort16  :: Assertion
+sort21  :: Assertion
 
 sort2   = assertEqual sortError [1,2] (mergeWrapper [2,1])
 sort4A  = assertEqual sortError [1,2,3,4] (mergeWrapper [2,1,3,4])
 sort4B  = assertEqual sortError [1,2,3,4] (mergeWrapper [2,1,4,3])
 sort4C  = assertEqual sortError [1,2,3,4] (mergeWrapper [4,3,2,1])
 sort16  = assertEqual sortError [1..16] (mergeWrapper [11,1,4,9,16,15,12,3,6,2,13,7,8,5,10,14])
+sort21  = assertEqual sortError [1..21] (mergeWrapper [5,12,11,9,3,21,4,2,6,16,18,13,17,8,14,1,7,20,19,15,10])
 
 main :: IO ()
 main = defaultMainWithOpts
@@ -51,5 +53,6 @@ main = defaultMainWithOpts
        , testCase "sort4A" sort4A
        , testCase "sort4B" sort4B
        , testCase "sort4C" sort4C
-       , testCase "sort16" sort16]
+       , testCase "sort16" sort16
+       , testCase "sort21" sort21]
        mempty
