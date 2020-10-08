@@ -4,6 +4,7 @@ open NUnit.Framework
 
 open GrahamScan.GrahamScan
 open GrahamScan.Point
+open GrahamScan.Util
 
 open System
 
@@ -71,84 +72,77 @@ type PointTests () =
             [| Point(1.0, 2.0); Point(2.0, 4.0) |]
         |]
 
-    static member CoordsToPoint =
-        let f = fun (x, y) -> Point(x, y)
-        Array.map f >> List.ofArray
-
     [<TestCaseSource("DedupByEqCases")>]
-    static member DedupByEqTest expecteds actuals =
-        let expected = PointTests.CoordsToPoint expecteds
-        let actual   = PointTests.CoordsToPoint actuals |> DedupByEq
+    static member DedupByEqTest expected inPoints =
+        let actual = DedupByEq inPoints
         CollectionAssert.AreEqual(expected, actual, PointTests.DedupError)
 
     static member DedupByEqCases =
         [|
             [|
-                [| (1.0, 2.0); (1.0, 1.0) |];
-                [| (1.0, 2.0); (1.0, 1.0) |]
+                [| (1.0, 2.0); (1.0, 1.0) |] |> CoordsToPoint;
+                [| (1.0, 2.0); (1.0, 1.0) |] |> CoordsToPoint
             |];
             [|
-                [| (1.0, 1.0) |];
-                [| (1.0, 1.0); (1.0, 1.0) |]
+                [| (1.0, 1.0) |] |> CoordsToPoint;
+                [| (1.0, 1.0); (1.0, 1.0) |] |> CoordsToPoint
             |];
             [|
-                [| (1.0, 1.0) |];
-                [| (1.0, 1.0); (1.0, 1.0); (1.0, 1.0) |]
+                [| (1.0, 1.0) |] |> CoordsToPoint;
+                [| (1.0, 1.0); (1.0, 1.0); (1.0, 1.0) |] |> CoordsToPoint
             |];
             [|
-                [| (1.0, 1.0); (2.0, 3.0) |];
-                [| (1.0, 1.0); (2.0, 3.0); (2.0, 3.0); (1.0, 1.0) |]
+                [| (1.0, 1.0); (2.0, 3.0) |] |> CoordsToPoint;
+                [| (1.0, 1.0); (2.0, 3.0); (2.0, 3.0); (1.0, 1.0) |] |> CoordsToPoint
             |];
         |]
 
     [<TestCaseSource("DedupByAngleCases")>]
-    static member DedupByAngleTest expecteds actuals =
-        let expected = PointTests.CoordsToPoint expecteds
-        let actual   = PointTests.CoordsToPoint actuals |> DedupByAngle PointTests.StartPoint
+    static member DedupByAngleTest expected inPoints =
+        let actual = DedupByAngle PointTests.StartPoint inPoints
         CollectionAssert.AreEqual(expected, actual, PointTests.DedupError)
 
     static member DedupByAngleCases =
         [|
             [|
-                [| (1.0, 2.0); (1.0, 1.0) |];
-                [| (1.0, 2.0); (1.0, 1.0) |]
+                [| (1.0, 2.0); (1.0, 1.0) |] |> CoordsToPoint;
+                [| (1.0, 2.0); (1.0, 1.0) |] |> CoordsToPoint
             |];
             [|
-                [| (1.0, 1.0) |];
-                [| (1.0, 1.0); (1.0, 1.0) |]
+                [| (1.0, 1.0) |] |> CoordsToPoint;
+                [| (1.0, 1.0); (1.0, 1.0) |] |> CoordsToPoint
             |];
             [|
-                [| (10.0, 20.0) |];
-                [| (1.0, 2.0); (10.0, 20.0) |]
+                [| (10.0, 20.0) |] |> CoordsToPoint;
+                [| (1.0, 2.0); (10.0, 20.0) |] |> CoordsToPoint
             |];
             [|
-                [| (100.0, 200.0) |];
-                [| (1.0, 2.0); (10.0, 20.0); (100.0, 200.0) |]
+                [| (100.0, 200.0) |] |> CoordsToPoint;
+                [| (1.0, 2.0); (10.0, 20.0); (100.0, 200.0) |] |> CoordsToPoint
             |];
             [|
-                [| (2.0, 4.0); (3.0, 2.0) |];
-                [| (1.0, 2.0); (2.0, 4.0); (3.0, 2.0); (1.5, 1.0) |]
+                [| (2.0, 4.0); (3.0, 2.0) |] |> CoordsToPoint;
+                [| (1.0, 2.0); (2.0, 4.0); (3.0, 2.0); (1.5, 1.0) |] |> CoordsToPoint
             |];
         |]
 
     [<TestCaseSource("SortByAngleCases")>]
-    static member SortByAngleTest expecteds actuals =
-        let expected = PointTests.CoordsToPoint expecteds
-        let actual   = PointTests.CoordsToPoint actuals |> SortPoints PointTests.StartPoint
+    static member SortByAngleTest expected inPoints =
+        let actual = SortPoints PointTests.StartPoint inPoints
         CollectionAssert.AreEqual(expected, actual, PointTests.SortError)
 
     static member SortByAngleCases =
         [|
             [|
-                [||];
-                [||]
+                [||] |> CoordsToPoint;
+                [||] |> CoordsToPoint
             |];
             [|
-                [| (10.0, 0.0); (10.0, 5.0); (10.0, 10.0); (5.0, 10.0); (0.0, 10.0) |];
-                [| (10.0, 5.0); (0.0, 10.0); (10.0, 10.0); (10.0, 0.0); (5.0, 10.0) |]
+                [| (10.0, 0.0); (10.0, 5.0); (10.0, 10.0); (5.0, 10.0); (0.0, 10.0) |] |> CoordsToPoint;
+                [| (10.0, 5.0); (0.0, 10.0); (10.0, 10.0); (10.0, 0.0); (5.0, 10.0) |] |> CoordsToPoint
             |];
             [|
-                [| (5.0, 1.0); (4.0, 2.0); (8.0, 7.0); (6.0, 6.0); (2.0, 6.0); (1.0, 4.0) |];
-                [| (5.0, 1.0); (3.0, 3.0); (1.0, 4.0); (2.0, 6.0); (8.0, 7.0); (6.0, 6.0); (4.0, 2.0) |]
+                [| (5.0, 1.0); (4.0, 2.0); (8.0, 7.0); (6.0, 6.0); (2.0, 6.0); (1.0, 4.0) |] |> CoordsToPoint;
+                [| (5.0, 1.0); (3.0, 3.0); (1.0, 4.0); (2.0, 6.0); (8.0, 7.0); (6.0, 6.0); (4.0, 2.0) |] |> CoordsToPoint
             |]
         |]

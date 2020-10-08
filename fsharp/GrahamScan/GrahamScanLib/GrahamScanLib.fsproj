@@ -6,6 +6,7 @@
   <ItemGroup>
     <Compile Include="Direction.fs" />
     <Compile Include="Point.fs" />
+    <Compile Include="Util.fs" />
     <Compile Include="GrahamScan.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
