@@ -22,13 +22,13 @@ mergeSort f xs =
 -- merge
 -- Merge two lists into one sorted list
 merge :: (a -> a -> Bool) -> [a] -> [a] -> [a]
-merge f as bs =
-    case (as, bs) of
-        (_, []) -> as
-        ([], _) -> bs
-        ((ah:at), (bh:bt)) -> if (f ah bh) 
-                             then ah:(merge f at bs)
-                             else bh:(merge f as bt)
+merge f xs ys =
+    case (xs, ys) of
+        (_, []) -> xs
+        ([], _) -> ys
+        ((a:at), (bh:bt)) -> if (f a bh) 
+                             then a:(merge f at ys)
+                             else bh:(merge f xs bt)
 
 -- mergeWrapper
 -- Handy function for the usual case of sorting for any Ord type

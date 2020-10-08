@@ -5,7 +5,7 @@ import PointData
 -- doublesToPoints
 -- Turns a list of doubles into a list of points
 doublesToPoints :: [Double] -> [Point2D]
-doublesToPoints (x:y:zs) = [Point x y] ++ doublesToPoints zs
+doublesToPoints (a:b:tail) = [Point a b] ++ doublesToPoints tail
 doublesToPoints _        = []
 
 -- toPoints
@@ -22,10 +22,10 @@ notStart start = filter (\p -> not (p == start))
 -- Perform the Graham Scan
 doScan :: [Point2D] -> [Point2D] -> [Point2D]
 doScan ps@(x:xs) stack =
-    case stack of (p1:p2:_) -> if ((length stack) > 1) && ((lineDirection p2 p1 x) == RightTurn)
+    case stack of (p1:p2:_) -> if (length stack) > 1 && (lineBend p2 p1 x) == RightTurn
                                then doScan ps (tail stack)
                                else doScan xs (x:stack)
-                  otherwise -> doScan xs (x:stack)
+                  _ -> doScan xs (x:stack)
 doScan _ stack = stack
 
 -- grahamScan
